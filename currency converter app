@@ -1,0 +1,135 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(Currency_Converter_App());
+}
+
+class Currency_Converter_App extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Currency_Converter_Screen(),
+    );
+  }
+}
+
+class Currency_Converter_Screen extends StatefulWidget {
+  @override
+  _CurrencyConverterScreenState createState() {
+     return _CurrencyConverterScreenState();
+  }
+}
+
+class _CurrencyConverterScreenState extends State<Currency_Converter_Screen> {
+  final TextEditingController _amountController = TextEditingController();
+  String _selectedCurrency = 'USD';
+  String _convertedAmount = '';
+
+  // Conversion rates (PKR to other currencies)
+  final Map<String, double> _conversionRates = {
+    'USD': 0.0036,
+    'GBP': 0.0029,
+    'EUR': 0.0034,
+    'SAR': 0.0135,
+    'TRY': 0.098,
+  };
+
+  void _convertCurrency() {
+    final inputAmount = double.tryParse(_amountController.text);
+    if (inputAmount != null) {
+      final conversion_Rate = _conversionRates[_selectedCurrency] ?? 1.0;
+      final converted = inputAmount * conversion_Rate;
+      setState(() {
+        _convertedAmount =
+            'Converted Amount: ${_getCurrencySymbol(_selectedCurrency)}${converted.toStringAsFixed(2)}';
+      });
+    } else {
+      setState(() {
+        _convertedAmount = 'Please enter a valid amount';
+      });
+    }
+  }
+
+  String _getCurrencySymbol(String currency) {
+    switch (currency) {
+      case 'USD':
+        return '\$';
+      case 'GBP':
+        return '£';
+      case 'EUR':
+        return '€';
+      case 'SAR':
+        return '﷼';
+      case 'TRY':
+        return '₺';
+      default:
+        return '';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor:Color.fromARGB(255, 140, 179, 199),
+      appBar: AppBar(
+        title: Text(
+          'Currency Converter',
+           style: TextStyle(
+             color: Colors.white, // Set text color
+            )
+         ),
+        backgroundColor: Colors.blueGrey,
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Amount in PKR',
+                border: OutlineInputBorder(),
+               ),
+            ),
+            SizedBox(height: 40),
+            DropdownButton<String>(
+              value: _selectedCurrency,
+              isExpanded: true,
+              onChanged: (value) {
+                setState(() {
+                  _selectedCurrency = value!;
+                });
+              },
+              items: ['USD', 'GBP', 'EUR', 'SAR', 'TRY']
+                  .map((currency) { 
+                    return DropdownMenuItem(
+                        value: currency,
+                        child: Text(currency),
+                      );
+                      }
+                       )
+                  .toList(),
+            ),
+            SizedBox(height: 100),
+            ElevatedButton(
+              onPressed: _convertCurrency,
+              child: Text('Convert'),
+              style: ElevatedButton.styleFrom(
+    foregroundColor: Colors.white, // Text color
+    backgroundColor: Colors.blueGrey,  // Button background color
+  ),
+            ),
+            SizedBox(height: 40),
+            Text(
+              _convertedAmount,
+        ),
+          ],
+        ),
+      ),
+    );
+  }
+}
